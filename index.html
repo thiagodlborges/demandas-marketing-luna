@@ -1,0 +1,986 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Luna — Demandas de Marketing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root{
+    --cream:#FAF5EE;
+    --cream-2:#F1E8DB;
+    --ink:#2B2320;
+    --ink-soft:#6B5D53;
+    --plum:#6B2B3D;
+    --plum-dark:#4E1F2D;
+    --coral:#D4664F;
+    --gold:#C79A3D;
+    --sage:#5C7A5C;
+    --border:#E4D6C4;
+    --card:#FFFFFF;
+    --shadow: 0 1px 2px rgba(43,35,32,.06), 0 6px 20px rgba(43,35,32,.06);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--cream);
+    color:var(--ink);
+    font-family:'Inter',system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,.display{
+    font-family:'Fraunces',Georgia,serif;
+    font-weight:600;
+    letter-spacing:-0.01em;
+  }
+  .eyebrow{
+    font-size:11px;
+    font-weight:700;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+  }
+  a{color:inherit;}
+  button{font-family:inherit;cursor:pointer;}
+  input,select,textarea{font-family:inherit;}
+
+  /* ---------- Login ---------- */
+  #tela-login{
+    display:none; /* fica oculto até confirmarmos que não há sessão do portal já ativa */
+    min-height:100vh;
+    align-items:center;
+    justify-content:center;
+    padding:24px;
+    background:
+      radial-gradient(1200px 600px at 15% -10%, #F6E7DA 0%, transparent 55%),
+      radial-gradient(1000px 500px at 110% 10%, #EFD9DC 0%, transparent 50%),
+      var(--cream);
+  }
+  #tela-login.mostrar{display:flex;}
+  #boot-carregando{
+    min-height:100vh;display:flex;align-items:center;justify-content:center;
+    color:var(--ink-soft);font-size:13px;background:var(--cream);
+  }
+  .login-card{
+    width:100%;
+    max-width:380px;
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:20px;
+    padding:40px 32px;
+    box-shadow:var(--shadow);
+  }
+  .login-mark{
+    font-family:'Fraunces',serif;
+    font-weight:700;
+    font-size:13px;
+    letter-spacing:.18em;
+    color:var(--plum);
+    text-transform:uppercase;
+    margin-bottom:6px;
+  }
+  .login-card h1{font-size:26px;margin:0 0 4px;color:var(--ink);}
+  .login-card p{margin:0 0 28px;color:var(--ink-soft);font-size:14px;}
+  .campo{margin-bottom:16px;}
+  .campo label{display:block;font-size:12px;font-weight:600;color:var(--ink-soft);margin-bottom:6px;}
+  .campo input,.campo select,.campo textarea{
+    width:100%;
+    padding:11px 13px;
+    border:1.5px solid var(--border);
+    border-radius:10px;
+    font-size:14px;
+    color:var(--ink);
+    background:#fff;
+    outline:none;
+    transition:border-color .15s;
+  }
+  .campo input:focus,.campo select:focus,.campo textarea:focus{border-color:var(--plum);}
+  .campo textarea{resize:vertical;min-height:64px;}
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    padding:11px 18px;
+    border-radius:10px;
+    border:1.5px solid transparent;
+    font-size:14px;
+    font-weight:600;
+    transition:transform .08s ease, box-shadow .15s ease, background .15s;
+  }
+  .btn:active{transform:scale(.98);}
+  .btn-primary{background:var(--plum);color:#fff;}
+  .btn-primary:hover{background:var(--plum-dark);}
+  .btn-ghost{background:transparent;color:var(--ink);border-color:var(--border);}
+  .btn-ghost:hover{border-color:var(--ink-soft);}
+  .btn-block{width:100%;}
+  .erro-msg{
+    background:#FBEAE6;color:#9A3B2B;border:1px solid #F0C7BC;
+    padding:10px 12px;border-radius:10px;font-size:13px;margin-bottom:16px;
+  }
+
+  /* ---------- App shell ---------- */
+  #app{display:none;min-height:100vh;flex-direction:column;}
+  header.topo{
+    background:var(--plum);
+    color:#fff;
+    padding:16px 24px;
+    display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;
+  }
+  .topo-esq{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;}
+  .topo-marca{font-family:'Fraunces',serif;font-weight:700;font-size:15px;letter-spacing:.1em;text-transform:uppercase;opacity:.85;}
+  .topo-titulo{font-family:'Fraunces',serif;font-weight:600;font-size:19px;}
+  .topo-dir{display:flex;align-items:center;gap:14px;font-size:13px;}
+  .topo-dir a{opacity:.85;text-decoration:none;}
+  .topo-dir a:hover{opacity:1;text-decoration:underline;}
+  .pill-user{
+    background:rgba(255,255,255,.12);
+    border-radius:999px;
+    padding:6px 12px;
+    font-size:12.5px;
+    display:flex;align-items:center;gap:6px;
+  }
+  #btn-sair{
+    background:rgba(255,255,255,.14);
+    color:#fff;border:1px solid rgba(255,255,255,.25);
+    padding:7px 14px;border-radius:9px;font-size:13px;font-weight:600;
+  }
+  #btn-sair:hover{background:rgba(255,255,255,.24);}
+
+  nav.abas{
+    background:var(--card);
+    border-bottom:1px solid var(--border);
+    display:flex;gap:4px;padding:0 20px;
+    overflow-x:auto;
+  }
+  .aba-btn{
+    background:none;border:none;
+    padding:15px 16px 13px;
+    font-size:14px;font-weight:600;
+    color:var(--ink-soft);
+    border-bottom:2.5px solid transparent;
+    white-space:nowrap;
+  }
+  .aba-btn.ativa{color:var(--plum);border-bottom-color:var(--plum);}
+  .aba-btn:hover:not(.ativa){color:var(--ink);}
+
+  main{flex:1;padding:24px;max-width:1180px;margin:0 auto;width:100%;}
+  .aba-conteudo{display:none;}
+  .aba-conteudo.ativa{display:block;}
+
+  .painel-cabecalho{
+    display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:14px;
+    margin-bottom:20px;
+  }
+  .painel-cabecalho h2{font-size:22px;margin:2px 0 4px;}
+  .painel-cabecalho p{margin:0;color:var(--ink-soft);font-size:13.5px;}
+
+  .filtros{
+    display:flex;gap:10px;flex-wrap:wrap;align-items:end;
+    background:var(--card);border:1px solid var(--border);border-radius:14px;
+    padding:14px;margin-bottom:20px;
+  }
+  .filtro-item{display:flex;flex-direction:column;gap:5px;}
+  .filtro-item label{font-size:11px;font-weight:700;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em;}
+  .filtro-item select,.filtro-item input{
+    padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;min-width:140px;
+  }
+
+  /* ---------- Cards "ticket" ---------- */
+  .grade-demandas{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;}
+  .ticket{
+    position:relative;
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:16px;
+    box-shadow:var(--shadow);
+    overflow:hidden;
+    display:flex;flex-direction:column;
+  }
+  .ticket.precisa-mktg{border-color:#E9B9A9;}
+  .ticket-topo{padding:16px 18px 14px;}
+  .ticket-loja{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--plum);}
+  .ticket-nome{font-family:'Fraunces',serif;font-weight:600;font-size:17px;margin:4px 0 8px;line-height:1.25;}
+  .ticket-meta{font-size:12.5px;color:var(--ink-soft);display:flex;flex-wrap:wrap;gap:10px;margin-bottom:2px;}
+  .ticket-meta span{display:inline-flex;align-items:center;gap:4px;}
+
+  .ticket-divisor{
+    position:relative;
+    border-top:2px dashed var(--border);
+    margin:2px 0;
+  }
+  .ticket-divisor::before,.ticket-divisor::after{
+    content:'';position:absolute;top:-8px;width:16px;height:16px;border-radius:50%;
+    background:var(--cream);
+  }
+  .ticket-divisor::before{left:-26px;}
+  .ticket-divisor::after{right:-26px;}
+
+  .ticket-baixo{padding:12px 18px 16px;display:flex;flex-direction:column;gap:8px;}
+  .badges-row{display:flex;gap:6px;flex-wrap:wrap;align-items:center;}
+  .badge{
+    font-size:11px;font-weight:700;padding:4px 10px;border-radius:999px;
+    letter-spacing:.02em;
+  }
+  .badge-loja{background:var(--cream-2);color:var(--ink-soft);}
+  .badge-mktg{background:var(--coral);color:#fff;}
+  .badge-status-planejado{background:#F5E9C9;color:#8A6A16;}
+  .badge-status-em_andamento{background:#DCE7EF;color:#2E5B7A;}
+  .badge-status-concluido{background:#DCEAD9;color:#3B6B3B;}
+  .badge-status-cancelado{background:#EDE3DD;color:#8A7B6E;}
+
+  .ticket-linha{font-size:12.5px;color:var(--ink);}
+  .ticket-linha b{color:var(--ink-soft);font-weight:600;}
+  .ticket-acoes{display:flex;gap:8px;margin-top:6px;}
+  .ticket-acoes button{
+    flex:1;font-size:12px;font-weight:600;padding:7px 0;border-radius:8px;border:1.5px solid var(--border);background:#fff;
+  }
+  .ticket-acoes button:hover{border-color:var(--plum);color:var(--plum);}
+
+  .vazio{
+    text-align:center;padding:60px 20px;color:var(--ink-soft);
+    background:var(--card);border:1px dashed var(--border);border-radius:16px;
+  }
+  .vazio .display{font-size:18px;color:var(--ink);margin-bottom:6px;}
+
+  /* ---------- Painel / dashboard ---------- */
+  .stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:24px;}
+  .stat-card{
+    background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px 18px;
+  }
+  .stat-num{font-family:'Fraunces',serif;font-weight:700;font-size:30px;color:var(--plum);line-height:1;}
+  .stat-label{font-size:12.5px;color:var(--ink-soft);margin-top:6px;}
+
+  .ranking{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;}
+  .ranking h3{font-size:15px;margin:0 0 16px;}
+  .rank-linha{display:flex;align-items:center;gap:12px;margin-bottom:12px;}
+  .rank-nome{width:170px;font-size:13px;font-weight:600;flex-shrink:0;}
+  .rank-barra-fundo{flex:1;height:9px;background:var(--cream-2);border-radius:999px;overflow:hidden;}
+  .rank-barra{height:100%;background:linear-gradient(90deg,var(--plum),var(--coral));border-radius:999px;}
+  .rank-valor{width:28px;text-align:right;font-size:13px;font-weight:700;color:var(--plum);flex-shrink:0;}
+
+  /* ---------- Modal ---------- */
+  .overlay{
+    display:none;position:fixed;inset:0;background:rgba(43,35,32,.45);
+    align-items:center;justify-content:center;padding:20px;z-index:50;
+  }
+  .overlay.ativo{display:flex;}
+  .modal{
+    background:#fff;border-radius:18px;max-width:560px;width:100%;
+    max-height:88vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.25);
+  }
+  .modal-cabecalho{
+    padding:20px 24px;border-bottom:1px solid var(--border);
+    display:flex;align-items:center;justify-content:space-between;
+    position:sticky;top:0;background:#fff;z-index:1;
+  }
+  .modal-cabecalho h3{margin:0;font-size:18px;}
+  .modal-fechar{background:none;border:none;font-size:20px;color:var(--ink-soft);line-height:1;padding:4px;}
+  .modal-corpo{padding:20px 24px;}
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:0 14px;}
+  .modal-rodape{padding:16px 24px 22px;display:flex;gap:10px;justify-content:flex-end;border-top:1px solid var(--border);}
+
+  .radio-realizacao{display:flex;gap:10px;}
+  .radio-opcao{
+    flex:1;border:1.5px solid var(--border);border-radius:10px;padding:10px 12px;
+    display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;
+  }
+  .radio-opcao input{margin:0;}
+  .radio-opcao.selecionada{border-color:var(--plum);background:#FBF2F1;}
+
+  .toast{
+    position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
+    background:var(--ink);color:#fff;padding:12px 20px;border-radius:10px;
+    font-size:13.5px;box-shadow:var(--shadow);z-index:100;
+    opacity:0;pointer-events:none;transition:opacity .2s, transform .2s;
+  }
+  .toast.mostrar{opacity:1;transform:translateX(-50%) translateY(-6px);}
+
+  .carregando{padding:60px;text-align:center;color:var(--ink-soft);font-size:13px;}
+
+  @media (max-width:640px){
+    .grid-2{grid-template-columns:1fr;}
+    main{padding:16px;}
+    .grade-demandas{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+
+<div id="boot-carregando">Carregando…</div>
+
+<!-- ===================== LOGIN ===================== -->
+<div id="tela-login">
+  <div class="login-card">
+    <div class="login-mark">Luna</div>
+    <h1>Demandas de Marketing</h1>
+    <p>Entre com seu acesso do Sistema Luna.</p>
+    <div id="login-erro" class="erro-msg" style="display:none;"></div>
+    <form id="form-login">
+      <div class="campo">
+        <label>E-mail</label>
+        <input type="email" id="login-email" required autocomplete="username">
+      </div>
+      <div class="campo">
+        <label>Senha</label>
+        <input type="password" id="login-senha" required autocomplete="current-password">
+      </div>
+      <button type="submit" class="btn btn-primary btn-block" id="btn-login">Entrar</button>
+    </form>
+  </div>
+</div>
+
+<!-- ===================== APP ===================== -->
+<div id="app">
+  <header class="topo">
+    <div class="topo-esq">
+      <span class="topo-marca">Luna</span>
+      <span class="topo-titulo">📣 Demandas de Marketing</span>
+    </div>
+    <div class="topo-dir">
+      <span class="pill-user" id="pill-usuario"></span>
+      <a href="https://thiagodlborges.github.io/Sistema-Luna/">← Sistema Luna</a>
+      <button id="btn-sair">Sair</button>
+    </div>
+  </header>
+
+  <nav class="abas" id="nav-abas">
+    <button class="aba-btn ativa" data-aba="minhas">📋 Minhas Demandas</button>
+    <button class="aba-btn" data-aba="central">🗂 Central de Demandas</button>
+    <button class="aba-btn" data-aba="painel">📊 Painel</button>
+  </nav>
+
+  <main>
+
+    <!-- ---- Aba: Minhas Demandas ---- -->
+    <section class="aba-conteudo ativa" id="aba-minhas">
+      <div class="painel-cabecalho">
+        <div>
+          <h2>Minhas Demandas</h2>
+          <p id="minhas-sub">Ações comerciais e de marketing da sua loja.</p>
+        </div>
+        <div style="display:flex;gap:10px;align-items:center;">
+          <select id="seletor-loja-minhas" class="filtro-item" style="display:none;padding:9px 12px;border:1.5px solid var(--border);border-radius:9px;font-size:13px;"></select>
+          <button class="btn btn-primary" id="btn-nova-demanda">+ Nova demanda</button>
+        </div>
+      </div>
+      <div id="lista-minhas" class="grade-demandas"><div class="carregando">Carregando…</div></div>
+    </section>
+
+    <!-- ---- Aba: Central de Demandas ---- -->
+    <section class="aba-conteudo" id="aba-central">
+      <div class="painel-cabecalho">
+        <div>
+          <h2>Central de Demandas</h2>
+          <p>Visão consolidada de todas as lojas — priorize quem precisa de apoio do marketing.</p>
+        </div>
+      </div>
+      <div class="filtros">
+        <div class="filtro-item">
+          <label>Loja</label>
+          <select id="filtro-central-loja"><option value="">Todas</option></select>
+        </div>
+        <div class="filtro-item">
+          <label>Realização</label>
+          <select id="filtro-central-realizacao">
+            <option value="">Todas</option>
+            <option value="Loja">Loja</option>
+            <option value="Mktg/Loja">Mktg/Loja</option>
+          </select>
+        </div>
+        <div class="filtro-item">
+          <label>Status</label>
+          <select id="filtro-central-status">
+            <option value="">Todos</option>
+            <option value="planejado">Planejado</option>
+            <option value="em_andamento">Em andamento</option>
+            <option value="concluido">Concluído</option>
+            <option value="cancelado">Cancelado</option>
+          </select>
+        </div>
+        <button class="btn btn-ghost" id="btn-limpar-filtros-central">Limpar filtros</button>
+      </div>
+      <div id="lista-central" class="grade-demandas"><div class="carregando">Carregando…</div></div>
+    </section>
+
+    <!-- ---- Aba: Painel ---- -->
+    <section class="aba-conteudo" id="aba-painel">
+      <div class="painel-cabecalho">
+        <div>
+          <h2>Painel</h2>
+          <p>Quanto cada loja está movimentando comercialmente.</p>
+        </div>
+        <input type="month" id="painel-mes" class="filtro-item" style="padding:9px 12px;border:1.5px solid var(--border);border-radius:9px;font-size:13px;">
+      </div>
+      <div class="stats-row" id="painel-stats"></div>
+      <div class="ranking">
+        <h3>Ações por loja</h3>
+        <div id="painel-ranking"></div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- ===================== MODAL DEMANDA ===================== -->
+<div class="overlay" id="overlay-demanda">
+  <div class="modal">
+    <div class="modal-cabecalho">
+      <h3 id="modal-titulo">Nova demanda</h3>
+      <button class="modal-fechar" id="modal-fechar">✕</button>
+    </div>
+    <form id="form-demanda">
+      <div class="modal-corpo">
+        <input type="hidden" id="d-id">
+
+        <div class="grid-2">
+          <div class="campo">
+            <label>Loja *</label>
+            <select id="d-loja" required></select>
+          </div>
+          <div class="campo">
+            <label>Data da solicitação</label>
+            <input type="date" id="d-data-solicitacao">
+          </div>
+        </div>
+
+        <div class="campo">
+          <label>Nome da ação / evento *</label>
+          <input type="text" id="d-nome-acao" required placeholder="Ex.: Ativação Dia das Mães">
+        </div>
+
+        <div class="grid-2">
+          <div class="campo">
+            <label>Cidade</label>
+            <input type="text" id="d-cidade">
+          </div>
+          <div class="campo">
+            <label>Shopping</label>
+            <input type="text" id="d-shopping">
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="campo">
+            <label>Data da ação / evento</label>
+            <input type="date" id="d-data-acao">
+          </div>
+          <div class="campo">
+            <label>Prazo</label>
+            <input type="date" id="d-prazo">
+          </div>
+        </div>
+
+        <div class="campo">
+          <label>Mecânica (contexto)</label>
+          <textarea id="d-mecanica" placeholder="Como a ação funciona"></textarea>
+        </div>
+
+        <div class="campo">
+          <label>Quais materiais necessários</label>
+          <textarea id="d-materiais"></textarea>
+        </div>
+
+        <div class="grid-2">
+          <div class="campo">
+            <label>Promoção / desconto</label>
+            <input type="text" id="d-promocao">
+          </div>
+          <div class="campo">
+            <label>Quem validou</label>
+            <input type="text" id="d-quem-validou">
+          </div>
+        </div>
+
+        <div class="campo">
+          <label>Contato do shopping (dúvidas)</label>
+          <input type="text" id="d-contato-shopping" placeholder="Nome e telefone/e-mail">
+        </div>
+
+        <div class="campo">
+          <label>Esta ação é realizada por</label>
+          <div class="radio-realizacao">
+            <label class="radio-opcao" id="opcao-loja">
+              <input type="radio" name="d-realizacao" value="Loja" checked> Só a loja
+            </label>
+            <label class="radio-opcao" id="opcao-mktg">
+              <input type="radio" name="d-realizacao" value="Mktg/Loja"> Precisa de apoio do marketing
+            </label>
+          </div>
+        </div>
+
+        <div class="campo" id="campo-status" style="display:none;">
+          <label>Status</label>
+          <select id="d-status">
+            <option value="planejado">Planejado</option>
+            <option value="em_andamento">Em andamento</option>
+            <option value="concluido">Concluído</option>
+            <option value="cancelado">Cancelado</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-rodape">
+        <button type="button" class="btn btn-ghost" id="btn-excluir-demanda" style="display:none;margin-right:auto;">Excluir</button>
+        <button type="button" class="btn btn-ghost" id="btn-cancelar-modal">Cancelar</button>
+        <button type="submit" class="btn btn-primary" id="btn-salvar-demanda">Salvar demanda</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SUPABASE_URL = 'https://pbuhwpcpdcnaheaywmdv.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBidWh3cGNwZGNuYWhlYXl3bWR2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYyNjU5MzksImV4cCI6MjA5MTg0MTkzOX0.Mg4PVg96ZiV3C2Rn0GLQU9c7ui_41OlU6Ldqn5jcvyY';
+// Nome dedicado (não "supabase") e cacheado em window: evita "Identifier já declarado"
+// caso este bloco de script seja executado mais de uma vez na mesma página (ex.: preview com hot-reload).
+const sb = window.__lunaMktgClient || (window.__lunaMktgClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY));
+
+const TODAS_LOJAS = ['Esplanada','Cianê','Tucuruvi','Indaiatuba','Jundiaí','Praça da Moça - Diadema','Buriti Mogi Guaçu','SP Market','Iguatemi Campinas','Shopping Itaquera','Atrium'];
+
+const STATUS_LABEL = {planejado:'Planejado', em_andamento:'Em andamento', concluido:'Concluído', cancelado:'Cancelado'};
+
+let perfil = null;      // linha da tabela perfis do usuário logado
+let minhasLojas = [];   // lojas que o usuário tem acesso (para criar/ver na aba "Minhas Demandas")
+let podeVerTudo = false; // master ou marketing_backoffice
+let lojaSelecionadaMinhas = null;
+let demandaEditando = null;
+
+// ---------- utilidades ----------
+function mostrarToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('mostrar');
+  setTimeout(()=>t.classList.remove('mostrar'), 2600);
+}
+function fmtData(iso){
+  if(!iso) return '—';
+  const [a,m,d] = iso.split('-');
+  return `${d}/${m}/${a}`;
+}
+function popularSelectLojas(select, lojas, comTodas){
+  select.innerHTML = '';
+  if(comTodas){
+    const op = document.createElement('option');
+    op.value=''; op.textContent='Todas';
+    select.appendChild(op);
+  }
+  lojas.forEach(l=>{
+    const op = document.createElement('option');
+    op.value = l; op.textContent = l;
+    select.appendChild(op);
+  });
+}
+
+// ---------- login ----------
+document.getElementById('form-login').addEventListener('submit', async (e)=>{
+  e.preventDefault();
+  const btn = document.getElementById('btn-login');
+  const erroEl = document.getElementById('login-erro');
+  erroEl.style.display = 'none';
+  btn.textContent = 'Entrando…'; btn.disabled = true;
+  const email = document.getElementById('login-email').value.trim();
+  const senha = document.getElementById('login-senha').value;
+  const { error } = await sb.auth.signInWithPassword({ email, password: senha });
+  btn.textContent = 'Entrar'; btn.disabled = false;
+  if(error){
+    erroEl.textContent = 'E-mail ou senha inválidos.';
+    erroEl.style.display = 'block';
+    return;
+  }
+  await iniciarApp();
+});
+
+document.getElementById('btn-sair').addEventListener('click', async ()=>{
+  await sb.auth.signOut();
+  location.reload();
+});
+
+// ---------- boot ----------
+function mostrarTelaLogin(){
+  document.getElementById('boot-carregando').style.display = 'none';
+  document.getElementById('tela-login').classList.add('mostrar');
+}
+
+(async function checarSessao(){
+  try{
+    const { data:{ session } } = await sb.auth.getSession();
+    if(session){
+      await iniciarApp();
+    } else {
+      mostrarTelaLogin();
+    }
+  } catch(e){
+    // Se a checagem de sessão falhar por algum motivo, não trava a pessoa numa tela de carregamento infinita.
+    mostrarTelaLogin();
+  }
+})();
+
+async function iniciarApp(){
+  const { data:{ user } } = await sb.auth.getUser();
+  if(!user){ mostrarTelaLogin(); return; }
+
+  const { data: perfilRow, error } = await sb.from('perfis').select('*').eq('id', user.id).single();
+  if(error || !perfilRow){
+    mostrarToast('Não foi possível carregar seu perfil.');
+    mostrarTelaLogin();
+    return;
+  }
+  perfil = perfilRow;
+
+  const setLojas = new Set();
+  if(perfil.loja) setLojas.add(perfil.loja);
+  (perfil.lojas || []).forEach(l=>setLojas.add(l));
+  minhasLojas = Array.from(setLojas);
+
+  podeVerTudo = perfil.tipo === 'master' || !!perfil.marketing_backoffice;
+
+  document.getElementById('boot-carregando').style.display = 'none';
+  document.getElementById('tela-login').classList.remove('mostrar');
+  document.getElementById('app').style.display = 'flex';
+  document.getElementById('pill-usuario').textContent = `👤 ${perfil.nome || user.email}`;
+
+  configurarAbasVisiveis();
+  configurarSelects();
+  await carregarMinhasDemandas();
+}
+
+function configurarAbasVisiveis(){
+  const btnCentral = document.querySelector('[data-aba="central"]');
+  const btnPainel = document.querySelector('[data-aba="painel"]');
+  const btnMinhas = document.querySelector('[data-aba="minhas"]');
+
+  btnCentral.style.display = podeVerTudo ? '' : 'none';
+  btnPainel.style.display = podeVerTudo ? '' : 'none';
+  btnMinhas.style.display = minhasLojas.length > 0 ? '' : 'none';
+
+  if(minhasLojas.length === 0 && podeVerTudo){
+    // usuário só de backoffice/master sem loja própria: abre direto na Central
+    document.querySelectorAll('.aba-btn').forEach(b=>b.classList.remove('ativa'));
+    document.querySelectorAll('.aba-conteudo').forEach(s=>s.classList.remove('ativa'));
+    btnCentral.classList.add('ativa');
+    document.getElementById('aba-central').classList.add('ativa');
+    carregarCentral();
+  }
+}
+
+function configurarSelects(){
+  // seletor de loja na aba "Minhas Demandas" (só aparece com mais de 1 loja)
+  const seletor = document.getElementById('seletor-loja-minhas');
+  if(minhasLojas.length > 1){
+    popularSelectLojas(seletor, minhasLojas, false);
+    seletor.style.display = '';
+    lojaSelecionadaMinhas = minhasLojas[0];
+    seletor.addEventListener('change', ()=>{
+      lojaSelecionadaMinhas = seletor.value;
+      carregarMinhasDemandas();
+    });
+  } else if(minhasLojas.length === 1){
+    lojaSelecionadaMinhas = minhasLojas[0];
+  }
+
+  // dropdown de loja no formulário de nova demanda
+  const dLoja = document.getElementById('d-loja');
+  if(podeVerTudo){
+    popularSelectLojas(dLoja, TODAS_LOJAS, false);
+  } else {
+    popularSelectLojas(dLoja, minhasLojas, false);
+  }
+
+  // filtro de loja na Central
+  popularSelectLojas(document.getElementById('filtro-central-loja'), TODAS_LOJAS, true);
+
+  // mês do painel = mês atual
+  const agora = new Date();
+  document.getElementById('painel-mes').value = `${agora.getFullYear()}-${String(agora.getMonth()+1).padStart(2,'0')}`;
+}
+
+// ---------- navegação entre abas ----------
+document.querySelectorAll('.aba-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.aba-btn').forEach(b=>b.classList.remove('ativa'));
+    document.querySelectorAll('.aba-conteudo').forEach(s=>s.classList.remove('ativa'));
+    btn.classList.add('ativa');
+    const aba = btn.dataset.aba;
+    document.getElementById('aba-'+aba).classList.add('ativa');
+    if(aba === 'minhas') carregarMinhasDemandas();
+    if(aba === 'central') carregarCentral();
+    if(aba === 'painel') carregarPainel();
+  });
+});
+
+// ---------- render de um card "ticket" ----------
+function renderTicket(d, { mostrarLoja=false } = {}){
+  const precisaMktg = d.realizacao === 'Mktg/Loja';
+  const div = document.createElement('div');
+  div.className = 'ticket' + (precisaMktg ? ' precisa-mktg' : '');
+  div.innerHTML = `
+    <div class="ticket-topo">
+      ${mostrarLoja ? `<div class="ticket-loja">${d.loja}</div>` : ''}
+      <div class="ticket-nome">${d.nome_acao}</div>
+      <div class="ticket-meta">
+        <span>📅 ${fmtData(d.data_acao)}</span>
+        ${d.shopping ? `<span>🏬 ${d.shopping}</span>` : ''}
+        ${d.cidade ? `<span>📍 ${d.cidade}</span>` : ''}
+      </div>
+    </div>
+    <div class="ticket-divisor"></div>
+    <div class="ticket-baixo">
+      <div class="badges-row">
+        <span class="badge ${precisaMktg ? 'badge-mktg' : 'badge-loja'}">${precisaMktg ? '🎯 Precisa de Mktg' : 'Só loja'}</span>
+        <span class="badge badge-status-${d.status}">${STATUS_LABEL[d.status] || d.status}</span>
+      </div>
+      ${d.mecanica ? `<div class="ticket-linha"><b>Mecânica:</b> ${d.mecanica}</div>` : ''}
+      ${d.promocao_desconto ? `<div class="ticket-linha"><b>Promo:</b> ${d.promocao_desconto}</div>` : ''}
+      ${d.quem_validou ? `<div class="ticket-linha"><b>Validado por:</b> ${d.quem_validou}</div>` : ''}
+      ${d.prazo ? `<div class="ticket-linha"><b>Prazo:</b> ${fmtData(d.prazo)}</div>` : ''}
+      <div class="ticket-acoes">
+        <button data-editar="${d.id}">Editar</button>
+      </div>
+    </div>
+  `;
+  div.querySelector('[data-editar]').addEventListener('click', ()=>abrirModal(d));
+  return div;
+}
+
+// ---------- Minhas Demandas ----------
+async function carregarMinhasDemandas(){
+  const lista = document.getElementById('lista-minhas');
+  if(minhasLojas.length === 0){
+    lista.innerHTML = `<div class="vazio"><div class="display">Sem loja vinculada</div>Seu perfil não está associado a nenhuma loja.</div>`;
+    return;
+  }
+  lista.innerHTML = `<div class="carregando">Carregando…</div>`;
+  const loja = lojaSelecionadaMinhas || minhasLojas[0];
+  document.getElementById('minhas-sub').textContent = `Ações comerciais e de marketing de ${loja}.`;
+
+  const { data, error } = await sb.from('marketing_demandas')
+    .select('*').eq('loja', loja)
+    .order('data_acao', { ascending:false, nullsFirst:false })
+    .order('criado_em', { ascending:false });
+
+  if(error){ lista.innerHTML = `<div class="vazio">Erro ao carregar: ${error.message}</div>`; return; }
+
+  if(!data.length){
+    lista.innerHTML = `<div class="vazio"><div class="display">Nenhuma demanda ainda</div>Clique em "+ Nova demanda" para registrar a primeira ação de ${loja}.</div>`;
+    return;
+  }
+  lista.innerHTML = '';
+  data.forEach(d => lista.appendChild(renderTicket(d, { mostrarLoja:false })));
+}
+
+document.getElementById('btn-nova-demanda').addEventListener('click', ()=>abrirModal(null));
+
+// ---------- Central de Demandas ----------
+async function carregarCentral(){
+  const lista = document.getElementById('lista-central');
+  lista.innerHTML = `<div class="carregando">Carregando…</div>`;
+
+  let query = sb.from('marketing_demandas').select('*')
+    .order('data_acao', { ascending:false, nullsFirst:false });
+
+  const fLoja = document.getElementById('filtro-central-loja').value;
+  const fRealizacao = document.getElementById('filtro-central-realizacao').value;
+  const fStatus = document.getElementById('filtro-central-status').value;
+  if(fLoja) query = query.eq('loja', fLoja);
+  if(fRealizacao) query = query.eq('realizacao', fRealizacao);
+  if(fStatus) query = query.eq('status', fStatus);
+
+  const { data, error } = await query;
+  if(error){ lista.innerHTML = `<div class="vazio">Erro ao carregar: ${error.message}</div>`; return; }
+  if(!data.length){
+    lista.innerHTML = `<div class="vazio"><div class="display">Nada por aqui</div>Nenhuma demanda encontrada com esses filtros.</div>`;
+    return;
+  }
+  // ordena: precisa de mktg + não concluído primeiro
+  data.sort((a,b)=>{
+    const pa = (a.realizacao==='Mktg/Loja' && a.status!=='concluido') ? 0 : 1;
+    const pb = (b.realizacao==='Mktg/Loja' && b.status!=='concluido') ? 0 : 1;
+    return pa - pb;
+  });
+  lista.innerHTML = '';
+  data.forEach(d => lista.appendChild(renderTicket(d, { mostrarLoja:true })));
+}
+['filtro-central-loja','filtro-central-realizacao','filtro-central-status'].forEach(id=>{
+  document.getElementById(id).addEventListener('change', carregarCentral);
+});
+document.getElementById('btn-limpar-filtros-central').addEventListener('click', ()=>{
+  document.getElementById('filtro-central-loja').value = '';
+  document.getElementById('filtro-central-realizacao').value = '';
+  document.getElementById('filtro-central-status').value = '';
+  carregarCentral();
+});
+
+// ---------- Painel ----------
+document.getElementById('painel-mes').addEventListener('change', carregarPainel);
+
+async function carregarPainel(){
+  const statsEl = document.getElementById('painel-stats');
+  const rankEl = document.getElementById('painel-ranking');
+  statsEl.innerHTML = `<div class="carregando">Carregando…</div>`;
+  rankEl.innerHTML = '';
+
+  const mesVal = document.getElementById('painel-mes').value; // "YYYY-MM"
+  let inicio = null, fim = null;
+  if(mesVal){
+    const [ano, mes] = mesVal.split('-').map(Number);
+    inicio = `${ano}-${String(mes).padStart(2,'0')}-01`;
+    const fimObj = new Date(ano, mes, 0);
+    fim = `${fimObj.getFullYear()}-${String(fimObj.getMonth()+1).padStart(2,'0')}-${String(fimObj.getDate()).padStart(2,'0')}`;
+  }
+
+  let query = sb.from('marketing_demandas').select('loja, realizacao, status, data_acao');
+  if(inicio && fim) query = query.gte('data_acao', inicio).lte('data_acao', fim);
+
+  const { data, error } = await query;
+  if(error){ statsEl.innerHTML = `<div class="vazio">Erro ao carregar: ${error.message}</div>`; return; }
+
+  const total = data.length;
+  const precisaMktg = data.filter(d=>d.realizacao==='Mktg/Loja').length;
+  const concluidas = data.filter(d=>d.status==='concluido').length;
+
+  statsEl.innerHTML = `
+    <div class="stat-card"><div class="stat-num">${total}</div><div class="stat-label">Ações no período</div></div>
+    <div class="stat-card"><div class="stat-num">${precisaMktg}</div><div class="stat-label">Precisando de apoio do marketing</div></div>
+    <div class="stat-card"><div class="stat-num">${concluidas}</div><div class="stat-label">Concluídas</div></div>
+  `;
+
+  const porLoja = {};
+  TODAS_LOJAS.forEach(l => porLoja[l] = 0);
+  data.forEach(d => { porLoja[d.loja] = (porLoja[d.loja] || 0) + 1; });
+  const ranking = Object.entries(porLoja).sort((a,b)=>b[1]-a[1]);
+  const maxVal = Math.max(1, ranking[0] ? ranking[0][1] : 1);
+
+  rankEl.innerHTML = '';
+  ranking.forEach(([loja, qtd])=>{
+    const linha = document.createElement('div');
+    linha.className = 'rank-linha';
+    linha.innerHTML = `
+      <div class="rank-nome">${loja}</div>
+      <div class="rank-barra-fundo"><div class="rank-barra" style="width:${(qtd/maxVal*100)}%"></div></div>
+      <div class="rank-valor">${qtd}</div>
+    `;
+    rankEl.appendChild(linha);
+  });
+}
+
+// ---------- Modal: criar / editar ----------
+function abrirModal(d){
+  demandaEditando = d;
+  document.getElementById('form-demanda').reset();
+  document.getElementById('modal-titulo').textContent = d ? 'Editar demanda' : 'Nova demanda';
+  document.getElementById('btn-excluir-demanda').style.display = d ? '' : 'none';
+  document.getElementById('campo-status').style.display = d ? '' : 'none';
+
+  const dLojaSel = document.getElementById('d-loja');
+  if(!podeVerTudo && minhasLojas.length === 1){
+    dLojaSel.value = minhasLojas[0];
+    dLojaSel.disabled = true;
+  } else {
+    dLojaSel.disabled = false;
+  }
+
+  document.getElementById('d-id').value = d ? d.id : '';
+  document.getElementById('d-nome-acao').value = d ? d.nome_acao : '';
+  document.getElementById('d-cidade').value = d ? (d.cidade||'') : '';
+  document.getElementById('d-shopping').value = d ? (d.shopping||'') : '';
+  document.getElementById('d-data-acao').value = d ? (d.data_acao||'') : '';
+  document.getElementById('d-prazo').value = d ? (d.prazo||'') : '';
+  document.getElementById('d-mecanica').value = d ? (d.mecanica||'') : '';
+  document.getElementById('d-materiais').value = d ? (d.materiais_necessarios||'') : '';
+  document.getElementById('d-promocao').value = d ? (d.promocao_desconto||'') : '';
+  document.getElementById('d-quem-validou').value = d ? (d.quem_validou||'') : '';
+  document.getElementById('d-contato-shopping').value = d ? (d.contato_shopping||'') : '';
+  document.getElementById('d-data-solicitacao').value = d ? d.data_solicitacao : new Date().toISOString().slice(0,10);
+  if(d){
+    dLojaSel.value = d.loja;
+    document.querySelector(`input[name="d-realizacao"][value="${d.realizacao}"]`).checked = true;
+    document.getElementById('d-status').value = d.status;
+  } else {
+    document.querySelector(`input[name="d-realizacao"][value="Loja"]`).checked = true;
+  }
+  atualizarSelecaoRealizacao();
+  document.getElementById('overlay-demanda').classList.add('ativo');
+}
+
+function fecharModal(){
+  document.getElementById('overlay-demanda').classList.remove('ativo');
+  demandaEditando = null;
+}
+document.getElementById('modal-fechar').addEventListener('click', fecharModal);
+document.getElementById('btn-cancelar-modal').addEventListener('click', fecharModal);
+document.getElementById('overlay-demanda').addEventListener('click', (e)=>{
+  if(e.target.id === 'overlay-demanda') fecharModal();
+});
+
+function atualizarSelecaoRealizacao(){
+  const val = document.querySelector('input[name="d-realizacao"]:checked')?.value;
+  document.getElementById('opcao-loja').classList.toggle('selecionada', val==='Loja');
+  document.getElementById('opcao-mktg').classList.toggle('selecionada', val==='Mktg/Loja');
+}
+document.querySelectorAll('input[name="d-realizacao"]').forEach(r=>{
+  r.addEventListener('change', atualizarSelecaoRealizacao);
+});
+
+document.getElementById('form-demanda').addEventListener('submit', async (e)=>{
+  e.preventDefault();
+  const btn = document.getElementById('btn-salvar-demanda');
+  btn.disabled = true; btn.textContent = 'Salvando…';
+
+  const payload = {
+    loja: document.getElementById('d-loja').value,
+    nome_acao: document.getElementById('d-nome-acao').value.trim(),
+    cidade: document.getElementById('d-cidade').value.trim() || null,
+    shopping: document.getElementById('d-shopping').value.trim() || null,
+    data_acao: document.getElementById('d-data-acao').value || null,
+    prazo: document.getElementById('d-prazo').value || null,
+    mecanica: document.getElementById('d-mecanica').value.trim() || null,
+    materiais_necessarios: document.getElementById('d-materiais').value.trim() || null,
+    promocao_desconto: document.getElementById('d-promocao').value.trim() || null,
+    quem_validou: document.getElementById('d-quem-validou').value.trim() || null,
+    contato_shopping: document.getElementById('d-contato-shopping').value.trim() || null,
+    realizacao: document.querySelector('input[name="d-realizacao"]:checked').value,
+    data_solicitacao: document.getElementById('d-data-solicitacao').value || new Date().toISOString().slice(0,10),
+  };
+
+  let error;
+  if(demandaEditando){
+    payload.status = document.getElementById('d-status').value;
+    ({ error } = await sb.from('marketing_demandas').update(payload).eq('id', demandaEditando.id));
+  } else {
+    payload.solicitado_por = perfil.id;
+    payload.solicitado_por_nome = perfil.nome;
+    ({ error } = await sb.from('marketing_demandas').insert(payload));
+  }
+
+  btn.disabled = false; btn.textContent = 'Salvar demanda';
+
+  if(error){
+    mostrarToast('Erro ao salvar: ' + error.message);
+    return;
+  }
+  mostrarToast(demandaEditando ? 'Demanda atualizada.' : 'Demanda criada.');
+  fecharModal();
+  atualizarAbaAtual();
+});
+
+document.getElementById('btn-excluir-demanda').addEventListener('click', async ()=>{
+  if(!demandaEditando) return;
+  if(!confirm('Excluir esta demanda? Essa ação não pode ser desfeita.')) return;
+  const { error } = await sb.from('marketing_demandas').delete().eq('id', demandaEditando.id);
+  if(error){ mostrarToast('Erro ao excluir: ' + error.message); return; }
+  mostrarToast('Demanda excluída.');
+  fecharModal();
+  atualizarAbaAtual();
+});
+
+function atualizarAbaAtual(){
+  const abaAtiva = document.querySelector('.aba-btn.ativa')?.dataset.aba;
+  if(abaAtiva === 'minhas') carregarMinhasDemandas();
+  if(abaAtiva === 'central') carregarCentral();
+  if(abaAtiva === 'painel') carregarPainel();
+}
+</script>
+</body>
+</html>
