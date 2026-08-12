@@ -374,6 +374,7 @@
           <h2>Central de Demandas</h2>
           <p>Visão consolidada de todas as lojas — priorize quem precisa de apoio do marketing.</p>
         </div>
+        <button class="btn btn-primary" id="btn-nova-demanda-central">+ Nova demanda</button>
       </div>
       <div class="filtros">
         <div class="filtro-item">
@@ -771,6 +772,7 @@ async function carregarMinhasDemandas(){
 }
 
 document.getElementById('btn-nova-demanda').addEventListener('click', ()=>abrirModal(null));
+document.getElementById('btn-nova-demanda-central').addEventListener('click', ()=>abrirModal(null));
 
 // ---------- Central de Demandas ----------
 async function carregarCentral(){
