@@ -298,7 +298,70 @@
 
   .carregando{padding:60px;text-align:center;color:var(--ink-soft);font-size:13px;}
 
+  /* ---------- Esteira / quadro ---------- */
+  .badge-prio-1{background:#F7D9D3;color:#9A3B2B;}
+  .badge-prio-2{background:#F9E3C6;color:#9A5A12;}
+  .badge-prio-3{background:#E8E2D8;color:#6B5D53;}
+  .badge-prio-4{background:#E3ECE3;color:#4C6B4C;}
+  .badge-paralelo{background:#E4DCF0;color:#5A3F85;}
+  .badge-atraso{background:#9A3B2B;color:#fff;}
+  .badge-frente-outra{background:#E4DCF0;color:#5A3F85;}
+  .ticket-prazos{font-size:12.5px;display:flex;gap:6px;align-items:center;flex-wrap:wrap;}
+  .ticket-prazos b{color:var(--ink-soft);font-weight:600;}
+  .ticket-acoes button.sec{flex:.7;}
+
+  .esteira-secao{margin-bottom:26px;}
+  .esteira-secao h3{font-size:15px;margin:0 0 4px;}
+  .esteira-secao > p{margin:0 0 12px;color:var(--ink-soft);font-size:12.5px;}
+  .esteira-linha{
+    display:grid;grid-template-columns:34px 1fr auto;gap:12px;align-items:center;
+    background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:8px;
+  }
+  .esteira-linha.paralelo{border-style:dashed;border-color:#C9BCE0;}
+  .esteira-pos{
+    width:30px;height:30px;border-radius:50%;background:var(--cream-2);color:var(--plum);
+    display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;
+  }
+  .esteira-nome{font-weight:600;font-size:14px;}
+  .esteira-sub{font-size:12px;color:var(--ink-soft);margin-top:3px;display:flex;gap:10px;flex-wrap:wrap;}
+  .esteira-dir{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end;}
+  .btn-sm{padding:7px 12px;font-size:12px;border-radius:8px;}
+
+  .modal.largo{max-width:720px;}
+  .quadro-resumo{
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;
+    background:var(--cream);border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:18px;
+  }
+  .quadro-resumo .k{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft);}
+  .quadro-resumo .v{font-size:13.5px;font-weight:600;margin-top:3px;}
+  .bloco{border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:18px;}
+  .bloco h4{margin:0 0 10px;font-family:'Fraunces',serif;font-size:15px;}
+  .bloco.conclusao{background:#F1F7EF;border-color:#CFE2CB;}
+  .linha-tempo{position:relative;margin:0;padding:0 0 0 22px;list-style:none;}
+  .linha-tempo::before{content:'';position:absolute;left:6px;top:4px;bottom:4px;width:2px;background:var(--border);}
+  .evento{position:relative;margin-bottom:14px;}
+  .evento::before{
+    content:'';position:absolute;left:-21px;top:4px;width:10px;height:10px;border-radius:50%;
+    background:var(--plum);border:2px solid #fff;box-shadow:0 0 0 1px var(--border);
+  }
+  .evento.t-empurrada::before,.evento.t-furou_fila::before{background:var(--coral);}
+  .evento.t-conclusao::before{background:var(--sage);}
+  .evento.t-revisao_solicitada::before{background:var(--gold);}
+  .evento-cab{font-size:12px;color:var(--ink-soft);display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+  .evento-tipo{font-weight:700;color:var(--ink);font-size:13px;}
+  .evento-motivo{font-size:13px;margin-top:3px;white-space:pre-wrap;}
+  .evento-det{font-size:12px;color:var(--ink-soft);margin-top:3px;}
+  .evento-mud{font-size:12px;margin-top:4px;display:flex;flex-direction:column;gap:2px;}
+  .evento-mud span b{color:var(--ink-soft);font-weight:600;}
+  .seta{color:var(--coral);font-weight:700;}
+  .previa{background:#FBF2F1;border:1px solid #F0C7BC;border-radius:10px;padding:10px 12px;font-size:12.5px;margin-bottom:12px;}
+  .previa ul{margin:6px 0 0;padding-left:18px;}
+  .dica{font-size:12px;color:var(--ink-soft);margin:-8px 0 14px;}
+  .modal-rodape.simples{border-top:none;padding-top:0;}
+
   @media (max-width:640px){
+    .esteira-linha{grid-template-columns:30px 1fr;}
+    .esteira-dir{grid-column:1 / -1;justify-content:flex-start;}
     .grid-2{grid-template-columns:1fr;}
     main{padding:16px;}
     .grade-demandas{grid-template-columns:1fr;}
@@ -346,7 +409,9 @@
 
   <nav class="abas" id="nav-abas">
     <button class="aba-btn ativa" data-aba="minhas">📋 Minhas Demandas</button>
+    <button class="aba-btn" data-aba="esteira">🛤 Esteira</button>
     <button class="aba-btn" data-aba="central">🗂 Central de Demandas</button>
+    <button class="aba-btn" data-aba="concluidas">✅ Concluídas</button>
     <button class="aba-btn" data-aba="painel">📊 Painel</button>
   </nav>
 
@@ -367,18 +432,58 @@
       <div id="lista-minhas" class="grade-demandas"><div class="carregando">Carregando…</div></div>
     </section>
 
+    <!-- ---- Aba: Esteira ---- -->
+    <section class="aba-conteudo" id="aba-esteira">
+      <div class="painel-cabecalho">
+        <div>
+          <h2>Esteira da agência</h2>
+          <p>Fila de produção ordenada por prioridade e prazo de início. Quem fura a fila empurra as demais ou roda em paralelo.</p>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <button class="btn btn-ghost" id="btn-gerenciar-frentes">⚙ Frentes</button>
+          <button class="btn btn-primary" id="btn-nova-demanda-esteira">+ Nova demanda</button>
+        </div>
+      </div>
+      <div id="esteira-conteudo"><div class="carregando">Carregando…</div></div>
+    </section>
+
+    <!-- ---- Aba: Concluídas ---- -->
+    <section class="aba-conteudo" id="aba-concluidas">
+      <div class="painel-cabecalho">
+        <div>
+          <h2>Ações concluídas</h2>
+          <p>Histórico do que já foi entregue, com o resultado registrado.</p>
+        </div>
+      </div>
+      <div class="filtros">
+        <div class="filtro-item">
+          <label>Frente</label>
+          <select id="filtro-conc-frente"><option value="">Todas</option></select>
+        </div>
+        <div class="filtro-item">
+          <label>Concluída a partir de</label>
+          <input type="date" id="filtro-conc-de">
+        </div>
+        <div class="filtro-item">
+          <label>até</label>
+          <input type="date" id="filtro-conc-ate">
+        </div>
+      </div>
+      <div id="lista-concluidas" class="grade-demandas"><div class="carregando">Carregando…</div></div>
+    </section>
+
     <!-- ---- Aba: Central de Demandas ---- -->
     <section class="aba-conteudo" id="aba-central">
       <div class="painel-cabecalho">
         <div>
           <h2>Central de Demandas</h2>
-          <p>Visão consolidada de todas as lojas — priorize quem precisa de apoio do marketing.</p>
+          <p>Visão consolidada de todas as frentes (lojas e outras) — priorize quem precisa de apoio do marketing.</p>
         </div>
         <button class="btn btn-primary" id="btn-nova-demanda-central">+ Nova demanda</button>
       </div>
       <div class="filtros">
         <div class="filtro-item">
-          <label>Loja</label>
+          <label>Frente</label>
           <select id="filtro-central-loja"><option value="">Todas</option></select>
         </div>
         <div class="filtro-item">
@@ -395,7 +500,6 @@
             <option value="">Todos</option>
             <option value="planejado">Planejado</option>
             <option value="em_andamento">Em andamento</option>
-            <option value="concluido">Concluído</option>
             <option value="cancelado">Cancelado</option>
           </select>
         </div>
@@ -409,13 +513,13 @@
       <div class="painel-cabecalho">
         <div>
           <h2>Painel</h2>
-          <p>Quanto cada loja está movimentando comercialmente.</p>
+          <p>Quanto cada frente está movimentando comercialmente.</p>
         </div>
         <input type="month" id="painel-mes" class="filtro-item" style="padding:9px 12px;border:1.5px solid var(--border);border-radius:9px;font-size:13px;">
       </div>
       <div class="stats-row" id="painel-stats"></div>
       <div class="ranking">
-        <h3>Ações por loja</h3>
+        <h3>Ações por frente</h3>
         <div id="painel-ranking"></div>
       </div>
     </section>
@@ -436,7 +540,7 @@
 
         <div class="grid-2">
           <div class="campo">
-            <label>Loja *</label>
+            <label>Frente (loja ou outra) *</label>
             <select id="d-loja" required></select>
           </div>
           <div class="campo">
@@ -466,11 +570,28 @@
             <label>Data da ação / evento</label>
             <input type="date" id="d-data-acao">
           </div>
+          <div class="campo" id="campo-prioridade" style="display:none;">
+            <label>Prioridade</label>
+            <select id="d-prioridade">
+              <option value="1">1 · Urgente</option>
+              <option value="2">2 · Alta</option>
+              <option value="3" selected>3 · Normal</option>
+              <option value="4">4 · Baixa</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid-2" id="bloco-prazos-form">
           <div class="campo">
-            <label>Prazo</label>
+            <label>Prazo de início (agência)</label>
+            <input type="date" id="d-prazo-inicio">
+          </div>
+          <div class="campo">
+            <label>Conclusão prevista (agência)</label>
             <input type="date" id="d-prazo">
           </div>
         </div>
+        <div class="dica" id="dica-prazos-edicao" style="display:none;">Para alterar prazos, prioridade ou status de uma ação existente, use o <b>Quadro</b> — assim o motivo fica registrado no histórico.</div>
 
         <div class="campo">
           <label>Mecânica (contexto)</label>
@@ -510,15 +631,6 @@
           </div>
         </div>
 
-        <div class="campo" id="campo-status" style="display:none;">
-          <label>Status</label>
-          <select id="d-status">
-            <option value="planejado">Planejado</option>
-            <option value="em_andamento">Em andamento</option>
-            <option value="concluido">Concluído</option>
-            <option value="cancelado">Cancelado</option>
-          </select>
-        </div>
       </div>
       <div class="modal-rodape">
         <button type="button" class="btn btn-ghost" id="btn-excluir-demanda" style="display:none;margin-right:auto;">Excluir</button>
@@ -526,6 +638,45 @@
         <button type="submit" class="btn btn-primary" id="btn-salvar-demanda">Salvar demanda</button>
       </div>
     </form>
+  </div>
+</div>
+
+<!-- ===================== MODAL QUADRO DA AÇÃO ===================== -->
+<div class="overlay" id="overlay-quadro">
+  <div class="modal largo">
+    <div class="modal-cabecalho">
+      <div>
+        <div class="eyebrow" id="q-frente"></div>
+        <h3 id="q-titulo"></h3>
+      </div>
+      <button class="modal-fechar" id="q-fechar">✕</button>
+    </div>
+    <div class="modal-corpo" id="q-corpo"></div>
+  </div>
+</div>
+
+<!-- ===================== MODAL FRENTES ===================== -->
+<div class="overlay" id="overlay-frentes">
+  <div class="modal">
+    <div class="modal-cabecalho">
+      <h3>Frentes</h3>
+      <button class="modal-fechar" id="f-fechar">✕</button>
+    </div>
+    <div class="modal-corpo">
+      <p class="dica" style="margin-top:0;">Além das lojas, cadastre outras frentes de trabalho (e-commerce, institucional, eventos…). Frentes que não são lojas ficam visíveis só ao marketing.</p>
+      <form id="form-frente" class="grid-2" style="align-items:end;">
+        <div class="campo">
+          <label>Nome da frente</label>
+          <input type="text" id="f-nome" required maxlength="60">
+        </div>
+        <div class="campo">
+          <label>Tipo</label>
+          <select id="f-tipo"><option value="outra">Outra frente</option><option value="loja">Loja</option></select>
+        </div>
+        <div class="campo" style="grid-column:1 / -1;"><button class="btn btn-primary btn-block" type="submit">Adicionar frente</button></div>
+      </form>
+      <div id="f-lista"></div>
+    </div>
   </div>
 </div>
 
@@ -541,8 +692,16 @@ const sb = window.__lunaMktgClient || (window.__lunaMktgClient = window.supabase
 const TODAS_LOJAS = ['Esplanada','Cianê','Tucuruvi','Indaiatuba','Jundiaí','Praça da Moça - Diadema','Buriti Mogi Guaçu','SP Market','Iguatemi Campinas','Shopping Itaquera','Atrium'];
 
 const STATUS_LABEL = {planejado:'Planejado', em_andamento:'Em andamento', concluido:'Concluído', cancelado:'Cancelado'};
+const PRIO_LABEL = {1:'Urgente', 2:'Alta', 3:'Normal', 4:'Baixa'};
+const EVENTO_LABEL = {
+  criacao:'Ação cadastrada', nota:'Atualização', revisao_solicitada:'Revisão solicitada',
+  ajuste_prazo:'Ajuste de prazo', prioridade:'Mudança de prioridade', status:'Mudança de status',
+  paralelo:'Mudança de execução', furou_fila:'Furou a fila', empurrada:'Prazo empurrado',
+  conclusao:'Ação concluída', reabertura:'Ação reaberta'
+};
 
-let perfil = null;      // linha da tabela perfis do usuário logado
+let frentes = [];       // [{nome, tipo, ativo}] — lojas e outras frentes
+let perfil = null;     // linha da tabela perfis do usuário logado
 let minhasLojas = [];   // lojas que o usuário tem acesso (para criar/ver na aba "Minhas Demandas")
 let podeVerTudo = false; // master ou marketing_backoffice
 let lojaSelecionadaMinhas = null;
@@ -557,8 +716,57 @@ function mostrarToast(msg){
 }
 function fmtData(iso){
   if(!iso) return '—';
-  const [a,m,d] = iso.split('-');
+  const [a,m,d] = String(iso).slice(0,10).split('-');
   return `${d}/${m}/${a}`;
+}
+function fmtDataHora(iso){
+  const dt = new Date(iso);
+  return dt.toLocaleDateString('pt-BR') + ' ' + dt.toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
+}
+// escapa texto digitado pelo usuário antes de colocar em innerHTML
+function esc(v){
+  return String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function hojeISO(){
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function somarDias(iso, n){
+  if(!iso) return null;
+  const [a,m,d] = iso.split('-').map(Number);
+  const dt = new Date(a, m-1, d + n);
+  return `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}-${String(dt.getDate()).padStart(2,'0')}`;
+}
+function diasEntre(ini, fim){
+  const [a1,m1,d1] = ini.split('-').map(Number), [a2,m2,d2] = fim.split('-').map(Number);
+  return Math.round((new Date(a2,m2-1,d2) - new Date(a1,m1-1,d1)) / 86400000);
+}
+function estaAtrasada(d){
+  return !!d.prazo && ['planejado','em_andamento'].includes(d.status) && d.prazo < hojeISO();
+}
+function nomesFrentes({apenasAtivas=true, apenasLojas=false} = {}){
+  let lista = frentes.length ? frentes : TODAS_LOJAS.map(n=>({nome:n, tipo:'loja', ativo:true}));
+  if(apenasAtivas) lista = lista.filter(f=>f.ativo);
+  if(apenasLojas) lista = lista.filter(f=>f.tipo==='loja');
+  return lista.map(f=>f.nome);
+}
+function tipoDaFrente(nome){ return (frentes.find(f=>f.nome===nome)||{}).tipo || 'loja'; }
+async function carregarFrentes(){
+  const { data, error } = await sb.from('marketing_frentes').select('*').order('tipo').order('nome');
+  frentes = error ? [] : data;
+}
+// ordem da esteira: prioridade, depois prazo de início, depois conclusão, depois criação
+function compararEsteira(a, b){
+  if(a.prioridade !== b.prioridade) return a.prioridade - b.prioridade;
+  const ia = a.prazo_inicio || a.prazo || '9999-12-31', ib = b.prazo_inicio || b.prazo || '9999-12-31';
+  if(ia !== ib) return ia < ib ? -1 : 1;
+  return (a.criado_em || '') < (b.criado_em || '') ? -1 : 1;
+}
+function htmlPrazos(d){
+  return `<div class="ticket-prazos">
+    <span><b>Início:</b> ${fmtData(d.prazo_inicio)}</span><span class="seta">→</span>
+    <span><b>Conclusão prevista:</b> ${fmtData(d.prazo)}</span>
+  </div>`;
 }
 function popularSelectLojas(select, lojas, comTodas){
   select.innerHTML = '';
@@ -642,6 +850,7 @@ async function iniciarApp(){
   document.getElementById('app').style.display = 'flex';
   document.getElementById('pill-usuario').textContent = `👤 ${perfil.nome || user.email}`;
 
+  await carregarFrentes();
   configurarAbasVisiveis();
   configurarSelects();
   await carregarMinhasDemandas();
@@ -652,17 +861,19 @@ function configurarAbasVisiveis(){
   const btnPainel = document.querySelector('[data-aba="painel"]');
   const btnMinhas = document.querySelector('[data-aba="minhas"]');
 
+  const btnEsteira = document.querySelector('[data-aba="esteira"]');
   btnCentral.style.display = podeVerTudo ? '' : 'none';
+  btnEsteira.style.display = podeVerTudo ? '' : 'none';
   btnPainel.style.display = podeVerTudo ? '' : 'none';
   btnMinhas.style.display = minhasLojas.length > 0 ? '' : 'none';
 
   if(minhasLojas.length === 0 && podeVerTudo){
-    // usuário só de backoffice/master sem loja própria: abre direto na Central
+    // usuário só de backoffice/master sem loja própria: abre direto na Esteira
     document.querySelectorAll('.aba-btn').forEach(b=>b.classList.remove('ativa'));
     document.querySelectorAll('.aba-conteudo').forEach(s=>s.classList.remove('ativa'));
-    btnCentral.classList.add('ativa');
-    document.getElementById('aba-central').classList.add('ativa');
-    carregarCentral();
+    btnEsteira.classList.add('ativa');
+    document.getElementById('aba-esteira').classList.add('ativa');
+    carregarEsteira();
   }
 }
 
@@ -684,13 +895,14 @@ function configurarSelects(){
   // dropdown de loja no formulário de nova demanda
   const dLoja = document.getElementById('d-loja');
   if(podeVerTudo){
-    popularSelectLojas(dLoja, TODAS_LOJAS, false);
+    popularSelectLojas(dLoja, nomesFrentes(), false);
   } else {
     popularSelectLojas(dLoja, minhasLojas, false);
   }
 
-  // filtro de loja na Central
-  popularSelectLojas(document.getElementById('filtro-central-loja'), TODAS_LOJAS, true);
+  // filtros de frente (Central e Concluídas)
+  popularSelectLojas(document.getElementById('filtro-central-loja'), nomesFrentes({apenasAtivas:false}), true);
+  popularSelectLojas(document.getElementById('filtro-conc-frente'), podeVerTudo ? nomesFrentes({apenasAtivas:false}) : minhasLojas, true);
 
   // mês do painel = mês atual
   const agora = new Date();
@@ -706,42 +918,57 @@ document.querySelectorAll('.aba-btn').forEach(btn=>{
     const aba = btn.dataset.aba;
     document.getElementById('aba-'+aba).classList.add('ativa');
     if(aba === 'minhas') carregarMinhasDemandas();
+    if(aba === 'esteira') carregarEsteira();
     if(aba === 'central') carregarCentral();
+    if(aba === 'concluidas') carregarConcluidas();
     if(aba === 'painel') carregarPainel();
   });
 });
 
 // ---------- render de um card "ticket" ----------
+function badgesEsteira(d){
+  const ativa = ['planejado','em_andamento'].includes(d.status);
+  return `
+    ${ativa ? `<span class="badge badge-prio-${d.prioridade}">${d.prioridade}º · ${PRIO_LABEL[d.prioridade]}</span>` : ''}
+    ${d.em_paralelo && ativa ? '<span class="badge badge-paralelo">⇉ Em paralelo</span>' : ''}
+    ${estaAtrasada(d) ? '<span class="badge badge-atraso">Atrasada</span>' : ''}`;
+}
 function renderTicket(d, { mostrarLoja=false } = {}){
   const precisaMktg = d.realizacao === 'Mktg/Loja';
   const div = document.createElement('div');
   div.className = 'ticket' + (precisaMktg ? ' precisa-mktg' : '');
   div.innerHTML = `
     <div class="ticket-topo">
-      ${mostrarLoja ? `<div class="ticket-loja">${d.loja}</div>` : ''}
-      <div class="ticket-nome">${d.nome_acao}</div>
+      ${mostrarLoja ? `<div class="ticket-loja">${esc(d.loja)}${tipoDaFrente(d.loja)==='outra' ? ' · frente' : ''}</div>` : ''}
+      <div class="ticket-nome">${esc(d.nome_acao)}</div>
       <div class="ticket-meta">
         <span>📅 ${fmtData(d.data_acao)}</span>
-        ${d.shopping ? `<span>🏬 ${d.shopping}</span>` : ''}
-        ${d.cidade ? `<span>📍 ${d.cidade}</span>` : ''}
+        ${d.shopping ? `<span>🏬 ${esc(d.shopping)}</span>` : ''}
+        ${d.cidade ? `<span>📍 ${esc(d.cidade)}</span>` : ''}
       </div>
     </div>
     <div class="ticket-divisor"></div>
     <div class="ticket-baixo">
       <div class="badges-row">
         <span class="badge ${precisaMktg ? 'badge-mktg' : 'badge-loja'}">${precisaMktg ? '🎯 Precisa de Mktg' : 'Só loja'}</span>
-        <span class="badge badge-status-${d.status}">${STATUS_LABEL[d.status] || d.status}</span>
+        <span class="badge badge-status-${esc(d.status)}">${esc(STATUS_LABEL[d.status] || d.status)}</span>
+        ${badgesEsteira(d)}
       </div>
-      ${d.mecanica ? `<div class="ticket-linha"><b>Mecânica:</b> ${d.mecanica}</div>` : ''}
-      ${d.promocao_desconto ? `<div class="ticket-linha"><b>Promo:</b> ${d.promocao_desconto}</div>` : ''}
-      ${d.quem_validou ? `<div class="ticket-linha"><b>Validado por:</b> ${d.quem_validou}</div>` : ''}
-      ${d.prazo ? `<div class="ticket-linha"><b>Prazo:</b> ${fmtData(d.prazo)}</div>` : ''}
+      ${d.status === 'concluido'
+        ? `<div class="ticket-linha"><b>Concluída em:</b> ${fmtData(d.concluida_em)}</div>
+           ${d.conclusao_resultado ? `<div class="ticket-linha"><b>Resultado:</b> ${esc(d.conclusao_resultado)}</div>` : ''}`
+        : htmlPrazos(d)}
+      ${d.mecanica ? `<div class="ticket-linha"><b>Mecânica:</b> ${esc(d.mecanica)}</div>` : ''}
+      ${d.promocao_desconto ? `<div class="ticket-linha"><b>Promo:</b> ${esc(d.promocao_desconto)}</div>` : ''}
+      ${d.quem_validou ? `<div class="ticket-linha"><b>Validado por:</b> ${esc(d.quem_validou)}</div>` : ''}
       <div class="ticket-acoes">
-        <button data-editar="${d.id}">Editar</button>
+        <button data-quadro="${esc(d.id)}">📌 Quadro</button>
+        <button class="sec" data-editar="${esc(d.id)}">Editar</button>
       </div>
     </div>
   `;
   div.querySelector('[data-editar]').addEventListener('click', ()=>abrirModal(d));
+  div.querySelector('[data-quadro]').addEventListener('click', ()=>abrirQuadro(d.id));
   return div;
 }
 
@@ -757,14 +984,14 @@ async function carregarMinhasDemandas(){
   document.getElementById('minhas-sub').textContent = `Ações comerciais e de marketing de ${loja}.`;
 
   const { data, error } = await sb.from('marketing_demandas')
-    .select('*').eq('loja', loja)
+    .select('*').eq('loja', loja).neq('status','concluido')
     .order('data_acao', { ascending:false, nullsFirst:false })
     .order('criado_em', { ascending:false });
 
-  if(error){ lista.innerHTML = `<div class="vazio">Erro ao carregar: ${error.message}</div>`; return; }
+  if(error){ lista.innerHTML = `<div class="vazio">Erro ao carregar: ${esc(error.message)}</div>`; return; }
 
   if(!data.length){
-    lista.innerHTML = `<div class="vazio"><div class="display">Nenhuma demanda ainda</div>Clique em "+ Nova demanda" para registrar a primeira ação de ${loja}.</div>`;
+    lista.innerHTML = `<div class="vazio"><div class="display">Nenhuma demanda ainda</div>Clique em "+ Nova demanda" para registrar a primeira ação de ${esc(loja)}.</div>`;
     return;
   }
   lista.innerHTML = '';
@@ -773,13 +1000,14 @@ async function carregarMinhasDemandas(){
 
 document.getElementById('btn-nova-demanda').addEventListener('click', ()=>abrirModal(null));
 document.getElementById('btn-nova-demanda-central').addEventListener('click', ()=>abrirModal(null));
+document.getElementById('btn-nova-demanda-esteira').addEventListener('click', ()=>abrirModal(null));
 
 // ---------- Central de Demandas ----------
 async function carregarCentral(){
   const lista = document.getElementById('lista-central');
   lista.innerHTML = `<div class="carregando">Carregando…</div>`;
 
-  let query = sb.from('marketing_demandas').select('*')
+  let query = sb.from('marketing_demandas').select('*').neq('status','concluido')
     .order('data_acao', { ascending:false, nullsFirst:false });
 
   const fLoja = document.getElementById('filtro-central-loja').value;
@@ -790,16 +1018,16 @@ async function carregarCentral(){
   if(fStatus) query = query.eq('status', fStatus);
 
   const { data, error } = await query;
-  if(error){ lista.innerHTML = `<div class="vazio">Erro ao carregar: ${error.message}</div>`; return; }
+  if(error){ lista.innerHTML = `<div class="vazio">Erro ao carregar: ${esc(error.message)}</div>`; return; }
   if(!data.length){
     lista.innerHTML = `<div class="vazio"><div class="display">Nada por aqui</div>Nenhuma demanda encontrada com esses filtros.</div>`;
     return;
   }
   // ordena: precisa de mktg + não concluído primeiro
   data.sort((a,b)=>{
-    const pa = (a.realizacao==='Mktg/Loja' && a.status!=='concluido') ? 0 : 1;
-    const pb = (b.realizacao==='Mktg/Loja' && b.status!=='concluido') ? 0 : 1;
-    return pa - pb;
+    const pa = a.realizacao==='Mktg/Loja' ? 0 : 1;
+    const pb = b.realizacao==='Mktg/Loja' ? 0 : 1;
+    return pa - pb || compararEsteira(a,b);
   });
   lista.innerHTML = '';
   data.forEach(d => lista.appendChild(renderTicket(d, { mostrarLoja:true })));
@@ -832,24 +1060,26 @@ async function carregarPainel(){
     fim = `${fimObj.getFullYear()}-${String(fimObj.getMonth()+1).padStart(2,'0')}-${String(fimObj.getDate()).padStart(2,'0')}`;
   }
 
-  let query = sb.from('marketing_demandas').select('loja, realizacao, status, data_acao');
+  let query = sb.from('marketing_demandas').select('loja, realizacao, status, data_acao, prazo');
   if(inicio && fim) query = query.gte('data_acao', inicio).lte('data_acao', fim);
 
   const { data, error } = await query;
-  if(error){ statsEl.innerHTML = `<div class="vazio">Erro ao carregar: ${error.message}</div>`; return; }
+  if(error){ statsEl.innerHTML = `<div class="vazio">Erro ao carregar: ${esc(error.message)}</div>`; return; }
 
   const total = data.length;
   const precisaMktg = data.filter(d=>d.realizacao==='Mktg/Loja').length;
   const concluidas = data.filter(d=>d.status==='concluido').length;
+  const atrasadas = data.filter(estaAtrasada).length;
 
   statsEl.innerHTML = `
     <div class="stat-card"><div class="stat-num">${total}</div><div class="stat-label">Ações no período</div></div>
     <div class="stat-card"><div class="stat-num">${precisaMktg}</div><div class="stat-label">Precisando de apoio do marketing</div></div>
     <div class="stat-card"><div class="stat-num">${concluidas}</div><div class="stat-label">Concluídas</div></div>
+    <div class="stat-card"><div class="stat-num">${atrasadas}</div><div class="stat-label">Em atraso</div></div>
   `;
 
   const porLoja = {};
-  TODAS_LOJAS.forEach(l => porLoja[l] = 0);
+  nomesFrentes().forEach(l => porLoja[l] = 0);
   data.forEach(d => { porLoja[d.loja] = (porLoja[d.loja] || 0) + 1; });
   const ranking = Object.entries(porLoja).sort((a,b)=>b[1]-a[1]);
   const maxVal = Math.max(1, ranking[0] ? ranking[0][1] : 1);
@@ -859,7 +1089,7 @@ async function carregarPainel(){
     const linha = document.createElement('div');
     linha.className = 'rank-linha';
     linha.innerHTML = `
-      <div class="rank-nome">${loja}</div>
+      <div class="rank-nome">${esc(loja)}</div>
       <div class="rank-barra-fundo"><div class="rank-barra" style="width:${(qtd/maxVal*100)}%"></div></div>
       <div class="rank-valor">${qtd}</div>
     `;
@@ -873,7 +1103,11 @@ function abrirModal(d){
   document.getElementById('form-demanda').reset();
   document.getElementById('modal-titulo').textContent = d ? 'Editar demanda' : 'Nova demanda';
   document.getElementById('btn-excluir-demanda').style.display = d ? '' : 'none';
-  document.getElementById('campo-status').style.display = d ? '' : 'none';
+  // ao editar, prazos/prioridade/status só mudam pelo Quadro (exige motivo e gera histórico)
+  document.getElementById('bloco-prazos-form').style.display = d ? 'none' : '';
+  document.getElementById('dica-prazos-edicao').style.display = d ? '' : 'none';
+  document.getElementById('campo-prioridade').style.display = (!d && podeVerTudo) ? '' : 'none';
+  document.getElementById('d-prioridade').value = '3';
 
   const dLojaSel = document.getElementById('d-loja');
   if(!podeVerTudo && minhasLojas.length === 1){
@@ -888,7 +1122,8 @@ function abrirModal(d){
   document.getElementById('d-cidade').value = d ? (d.cidade||'') : '';
   document.getElementById('d-shopping').value = d ? (d.shopping||'') : '';
   document.getElementById('d-data-acao').value = d ? (d.data_acao||'') : '';
-  document.getElementById('d-prazo').value = d ? (d.prazo||'') : '';
+  document.getElementById('d-prazo').value = '';
+  document.getElementById('d-prazo-inicio').value = '';
   document.getElementById('d-mecanica').value = d ? (d.mecanica||'') : '';
   document.getElementById('d-materiais').value = d ? (d.materiais_necessarios||'') : '';
   document.getElementById('d-promocao').value = d ? (d.promocao_desconto||'') : '';
@@ -896,9 +1131,11 @@ function abrirModal(d){
   document.getElementById('d-contato-shopping').value = d ? (d.contato_shopping||'') : '';
   document.getElementById('d-data-solicitacao').value = d ? d.data_solicitacao : new Date().toISOString().slice(0,10);
   if(d){
+    if(![...dLojaSel.options].some(o=>o.value===d.loja)){
+      const op = document.createElement('option'); op.value = op.textContent = d.loja; dLojaSel.appendChild(op);
+    }
     dLojaSel.value = d.loja;
     document.querySelector(`input[name="d-realizacao"][value="${d.realizacao}"]`).checked = true;
-    document.getElementById('d-status').value = d.status;
   } else {
     document.querySelector(`input[name="d-realizacao"][value="Loja"]`).checked = true;
   }
@@ -936,7 +1173,6 @@ document.getElementById('form-demanda').addEventListener('submit', async (e)=>{
     cidade: document.getElementById('d-cidade').value.trim() || null,
     shopping: document.getElementById('d-shopping').value.trim() || null,
     data_acao: document.getElementById('d-data-acao').value || null,
-    prazo: document.getElementById('d-prazo').value || null,
     mecanica: document.getElementById('d-mecanica').value.trim() || null,
     materiais_necessarios: document.getElementById('d-materiais').value.trim() || null,
     promocao_desconto: document.getElementById('d-promocao').value.trim() || null,
@@ -948,9 +1184,16 @@ document.getElementById('form-demanda').addEventListener('submit', async (e)=>{
 
   let error;
   if(demandaEditando){
-    payload.status = document.getElementById('d-status').value;
     ({ error } = await sb.from('marketing_demandas').update(payload).eq('id', demandaEditando.id));
   } else {
+    payload.prazo_inicio = document.getElementById('d-prazo-inicio').value || null;
+    payload.prazo = document.getElementById('d-prazo').value || null;
+    if(payload.prazo_inicio && payload.prazo && payload.prazo < payload.prazo_inicio){
+      btn.disabled = false; btn.textContent = 'Salvar demanda';
+      mostrarToast('A conclusão prevista não pode ser anterior ao início.');
+      return;
+    }
+    if(podeVerTudo) payload.prioridade = Number(document.getElementById('d-prioridade').value);
     payload.solicitado_por = perfil.id;
     payload.solicitado_por_nome = perfil.nome;
     ({ error } = await sb.from('marketing_demandas').insert(payload));
@@ -977,10 +1220,377 @@ document.getElementById('btn-excluir-demanda').addEventListener('click', async (
   atualizarAbaAtual();
 });
 
+// ---------- Esteira ----------
+async function carregarEsteira(){
+  const el = document.getElementById('esteira-conteudo');
+  el.innerHTML = `<div class="carregando">Carregando…</div>`;
+  const { data, error } = await sb.from('marketing_demandas').select('*').in('status', ['planejado','em_andamento']);
+  if(error){ el.innerHTML = `<div class="vazio">Erro ao carregar: ${esc(error.message)}</div>`; return; }
+  if(!data.length){
+    el.innerHTML = `<div class="vazio"><div class="display">Esteira vazia</div>Nenhuma ação planejada ou em andamento.</div>`;
+    return;
+  }
+  const fila = data.filter(d=>!d.em_paralelo).sort(compararEsteira);
+  const paralelo = data.filter(d=>d.em_paralelo).sort(compararEsteira);
+
+  const linha = (d, pos) => `
+    <div class="esteira-linha ${d.em_paralelo ? 'paralelo' : ''}">
+      <div class="esteira-pos">${pos}</div>
+      <div>
+        <div class="esteira-nome">${esc(d.nome_acao)}</div>
+        <div class="esteira-sub">
+          <span>${esc(d.loja)}${tipoDaFrente(d.loja)==='outra' ? ' (frente)' : ''}</span>
+          <span>Início ${fmtData(d.prazo_inicio)} → Conclusão ${fmtData(d.prazo)}</span>
+          <span>${esc(STATUS_LABEL[d.status])}</span>
+        </div>
+      </div>
+      <div class="esteira-dir">
+        <span class="badge badge-prio-${d.prioridade}">${d.prioridade}º · ${PRIO_LABEL[d.prioridade]}</span>
+        ${estaAtrasada(d) ? '<span class="badge badge-atraso">Atrasada</span>' : ''}
+        <button class="btn btn-ghost btn-sm" data-quadro="${esc(d.id)}">📌 Quadro</button>
+      </div>
+    </div>`;
+
+  el.innerHTML = `
+    <div class="esteira-secao">
+      <h3>Fila principal (${fila.length})</h3>
+      <p>Ordem de produção: prioridade e, em seguida, prazo de início.</p>
+      ${fila.length ? fila.map((d,i)=>linha(d,i+1)).join('') : '<div class="vazio">Fila principal vazia.</div>'}
+    </div>
+    <div class="esteira-secao">
+      <h3>Em paralelo (${paralelo.length})</h3>
+      <p>Ações que correm ao lado da fila e não alteram o prazo das demais.</p>
+      ${paralelo.length ? paralelo.map((d,i)=>linha(d,'⇉')).join('') : '<div class="vazio">Nada em paralelo.</div>'}
+    </div>`;
+  el.querySelectorAll('[data-quadro]').forEach(b=>b.addEventListener('click', ()=>abrirQuadro(b.dataset.quadro)));
+}
+
+// ---------- Concluídas ----------
+async function carregarConcluidas(){
+  const lista = document.getElementById('lista-concluidas');
+  lista.innerHTML = `<div class="carregando">Carregando…</div>`;
+  let query = sb.from('marketing_demandas').select('*').eq('status','concluido')
+    .order('concluida_em', { ascending:false, nullsFirst:false });
+  const f = document.getElementById('filtro-conc-frente').value;
+  const de = document.getElementById('filtro-conc-de').value;
+  const ate = document.getElementById('filtro-conc-ate').value;
+  if(f) query = query.eq('loja', f);
+  if(de) query = query.gte('concluida_em', de);
+  if(ate) query = query.lte('concluida_em', ate);
+  const { data, error } = await query;
+  if(error){ lista.innerHTML = `<div class="vazio">Erro ao carregar: ${esc(error.message)}</div>`; return; }
+  if(!data.length){
+    lista.innerHTML = `<div class="vazio"><div class="display">Nenhuma ação concluída</div>As ações concluídas aparecem aqui com o resultado registrado.</div>`;
+    return;
+  }
+  lista.innerHTML = '';
+  data.forEach(d => lista.appendChild(renderTicket(d, { mostrarLoja:true })));
+}
+['filtro-conc-frente','filtro-conc-de','filtro-conc-ate'].forEach(id=>{
+  document.getElementById(id).addEventListener('change', carregarConcluidas);
+});
+
+// ---------- Quadro da ação ----------
+let quadroDemandaId = null;
+
+function htmlEvento(h){
+  const mud = [];
+  if(h.tipo !== 'criacao' || h.prazo_inicio_para || h.prazo_para){
+    if(h.prazo_inicio_de !== h.prazo_inicio_para)
+      mud.push(`<span><b>Início:</b> ${fmtData(h.prazo_inicio_de)} <span class="seta">→</span> ${fmtData(h.prazo_inicio_para)}</span>`);
+    if(h.prazo_de !== h.prazo_para)
+      mud.push(`<span><b>Conclusão prevista:</b> ${fmtData(h.prazo_de)} <span class="seta">→</span> ${fmtData(h.prazo_para)}</span>`);
+  }
+  if(h.tipo !== 'criacao' && h.prioridade_de != null && h.prioridade_de !== h.prioridade_para)
+    mud.push(`<span><b>Prioridade:</b> ${PRIO_LABEL[h.prioridade_de]} <span class="seta">→</span> ${PRIO_LABEL[h.prioridade_para]}</span>`);
+  if(h.tipo !== 'criacao' && h.status_de && h.status_de !== h.status_para)
+    mud.push(`<span><b>Status:</b> ${esc(STATUS_LABEL[h.status_de]||h.status_de)} <span class="seta">→</span> ${esc(STATUS_LABEL[h.status_para]||h.status_para)}</span>`);
+  if(['paralelo','furou_fila'].includes(h.tipo) && h.em_paralelo_para != null)
+    mud.push(`<span><b>Execução:</b> ${h.em_paralelo_para ? 'em paralelo' : 'na fila principal'}</span>`);
+  return `
+    <li class="evento t-${esc(h.tipo)}">
+      <div class="evento-cab">
+        <span class="evento-tipo">${esc(EVENTO_LABEL[h.tipo] || h.tipo)}</span>
+        <span>${fmtDataHora(h.criado_em)}</span>
+        ${h.autor_nome ? `<span>· ${esc(h.autor_nome)}</span>` : ''}
+      </div>
+      ${h.motivo ? `<div class="evento-motivo"><b>Motivo:</b> ${esc(h.motivo)}</div>` : ''}
+      ${h.detalhe ? `<div class="evento-det">${esc(h.detalhe)}</div>` : ''}
+      ${mud.length ? `<div class="evento-mud">${mud.join('')}</div>` : ''}
+    </li>`;
+}
+
+async function abrirQuadro(id){
+  quadroDemandaId = id;
+  const overlay = document.getElementById('overlay-quadro');
+  const corpo = document.getElementById('q-corpo');
+  corpo.innerHTML = `<div class="carregando">Carregando…</div>`;
+  overlay.classList.add('ativo');
+
+  const [rd, rh] = await Promise.all([
+    sb.from('marketing_demandas').select('*').eq('id', id).single(),
+    sb.from('marketing_demanda_historico').select('*').eq('demanda_id', id).order('criado_em', { ascending:false }),
+  ]);
+  if(rd.error){ corpo.innerHTML = `<div class="vazio">Erro ao carregar: ${esc(rd.error.message)}</div>`; return; }
+  const d = rd.data, hist = rh.data || [];
+  const ativa = ['planejado','em_andamento'].includes(d.status);
+  const concluida = d.status === 'concluido';
+
+  document.getElementById('q-frente').textContent = d.loja;
+  document.getElementById('q-titulo').textContent = d.nome_acao;
+
+  const duracao = (d.prazo_inicio && d.prazo) ? diasEntre(d.prazo_inicio, d.prazo) + 1 : 1;
+
+  corpo.innerHTML = `
+    <div class="quadro-resumo">
+      <div><div class="k">Status</div><div class="v">${esc(STATUS_LABEL[d.status])}</div></div>
+      <div><div class="k">Prioridade</div><div class="v">${d.prioridade}º · ${PRIO_LABEL[d.prioridade]}</div></div>
+      <div><div class="k">Execução</div><div class="v">${d.em_paralelo ? '⇉ Em paralelo' : 'Fila principal'}</div></div>
+      <div><div class="k">Início</div><div class="v">${fmtData(d.prazo_inicio)}</div></div>
+      <div><div class="k">Conclusão prevista</div><div class="v">${fmtData(d.prazo)}${estaAtrasada(d) ? ' ⚠' : ''}</div></div>
+      <div><div class="k">Solicitada em</div><div class="v">${fmtData(d.data_solicitacao)}</div></div>
+    </div>
+
+    ${concluida ? `
+    <div class="bloco conclusao">
+      <h4>✅ Ação concluída</h4>
+      <div class="ticket-linha"><b>Concluída em:</b> ${fmtData(d.concluida_em)}${d.concluida_por_nome ? ` por ${esc(d.concluida_por_nome)}` : ''}</div>
+      <div class="ticket-linha" style="margin-top:6px;white-space:pre-wrap;"><b>Resultado:</b> ${esc(d.conclusao_resultado || '—')}</div>
+      ${podeVerTudo ? `<div style="margin-top:12px;"><button class="btn btn-ghost btn-sm" id="q-reabrir">Reabrir ação</button></div>` : ''}
+    </div>` : ''}
+
+    ${!concluida ? `
+    <div class="bloco">
+      <h4>Nova atualização</h4>
+      <form id="q-form-atualizacao">
+        <div class="campo">
+          <label>Tipo</label>
+          <select id="q-tipo">
+            <option value="nota">Atualização / observação</option>
+            <option value="revisao_solicitada">Revisão solicitada</option>
+            ${podeVerTudo ? `
+            <option value="ajuste_prazo">Ajuste de prazo</option>
+            <option value="prioridade">Mudança de prioridade</option>
+            <option value="status">Mudança de status</option>
+            <option value="paralelo">Mudar execução (fila / paralelo)</option>` : ''}
+          </select>
+        </div>
+        ${podeVerTudo ? `
+        <div class="grid-2">
+          <div class="campo"><label>Prazo de início</label><input type="date" id="q-inicio" value="${esc(d.prazo_inicio||'')}"></div>
+          <div class="campo"><label>Conclusão prevista</label><input type="date" id="q-prazo" value="${esc(d.prazo||'')}"></div>
+        </div>
+        <div class="grid-2">
+          <div class="campo"><label>Prioridade</label>
+            <select id="q-prio">${[1,2,3,4].map(n=>`<option value="${n}" ${d.prioridade===n?'selected':''}>${n} · ${PRIO_LABEL[n]}</option>`).join('')}</select>
+          </div>
+          <div class="campo"><label>Status</label>
+            <select id="q-status">
+              ${['planejado','em_andamento','cancelado'].map(s=>`<option value="${s}" ${d.status===s?'selected':''}>${STATUS_LABEL[s]}</option>`).join('')}
+            </select>
+          </div>
+        </div>
+        <div class="campo"><label class="radio-opcao" style="display:flex;"><input type="checkbox" id="q-paralelo" ${d.em_paralelo?'checked':''}> Executar em paralelo (fora da fila principal)</label></div>
+        ` : ''}
+        <div class="campo">
+          <label>Motivo / descrição *</label>
+          <textarea id="q-motivo" required placeholder="Ex.: Loja pediu revisão do layout; prazo ajustado em 3 dias"></textarea>
+        </div>
+        <button class="btn btn-primary" type="submit" id="q-btn-atualizar">Registrar atualização</button>
+      </form>
+    </div>` : ''}
+
+    ${(ativa && podeVerTudo) ? `
+    <div class="bloco">
+      <h4>⚡ Furar a fila</h4>
+      <p class="dica" style="margin-top:0;">Dê prioridade urgente a esta ação. Escolha se ela empurra o prazo das demais ou acontece em paralelo, sem alterar nenhum outro prazo.</p>
+      <div class="radio-realizacao" style="margin-bottom:14px;">
+        <label class="radio-opcao" id="q-opcao-empurrar"><input type="radio" name="q-modo" value="empurrar" checked> Empurrar as demais</label>
+        <label class="radio-opcao" id="q-opcao-paralelo"><input type="radio" name="q-modo" value="paralelo"> Em paralelo</label>
+      </div>
+      <div class="grid-2">
+        <div class="campo"><label>Início desta ação</label><input type="date" id="q-ff-inicio" value="${esc(d.prazo_inicio||hojeISO())}"></div>
+        <div class="campo"><label>Conclusão prevista</label><input type="date" id="q-ff-prazo" value="${esc(d.prazo||'')}"></div>
+      </div>
+      <div class="campo" id="q-ff-campo-dias">
+        <label>Empurrar as demais em quantos dias corridos?</label>
+        <input type="number" min="1" id="q-ff-dias" value="${duracao}">
+      </div>
+      <div class="campo"><label>Motivo *</label><textarea id="q-ff-motivo" placeholder="Por que esta ação passa na frente?"></textarea></div>
+      <div id="q-ff-previa"></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="btn btn-ghost" type="button" id="q-ff-simular">Ver impacto</button>
+        <button class="btn btn-primary" type="button" id="q-ff-confirmar">Furar a fila</button>
+      </div>
+    </div>` : ''}
+
+    ${ativa ? `
+    <div class="bloco conclusao">
+      <h4>Concluir ação</h4>
+      <div class="campo"><label>Data de conclusão</label><input type="date" id="q-c-data" value="${hojeISO()}"></div>
+      <div class="campo"><label>Resultado / conclusão *</label><textarea id="q-c-resultado" placeholder="O que foi entregue, resultados, aprendizados…"></textarea></div>
+      <button class="btn btn-primary" type="button" id="q-c-btn">Marcar como concluída</button>
+    </div>` : ''}
+
+    <div class="bloco">
+      <h4>Histórico da ação</h4>
+      <ul class="linha-tempo">${hist.length ? hist.map(htmlEvento).join('') : '<li class="evento">Sem registros.</li>'}</ul>
+    </div>`;
+
+  ligarEventosQuadro(d);
+}
+
+function ligarEventosQuadro(d){
+  const $ = id => document.getElementById(id);
+  const aposAcao = (msg)=>{ mostrarToast(msg); abrirQuadro(d.id); atualizarAbaAtual(); };
+
+  // nova atualização
+  const form = $('q-form-atualizacao');
+  if(form) form.addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const btn = $('q-btn-atualizar'); btn.disabled = true;
+    const gestor = !!$('q-inicio');
+    const ini = gestor ? ($('q-inicio').value || null) : d.prazo_inicio;
+    const fim = gestor ? ($('q-prazo').value || null) : d.prazo;
+    const { error } = await sb.rpc('marketing_alterar_esteira', {
+      p_demanda: d.id, p_tipo: $('q-tipo').value, p_motivo: $('q-motivo').value,
+      p_prazo_inicio: ini, p_prazo: fim,
+      p_prioridade: gestor ? Number($('q-prio').value) : d.prioridade,
+      p_em_paralelo: gestor ? $('q-paralelo').checked : d.em_paralelo,
+      p_status: gestor ? $('q-status').value : d.status,
+    });
+    btn.disabled = false;
+    if(error){ mostrarToast(error.message); return; }
+    aposAcao('Atualização registrada.');
+  });
+
+  // concluir
+  const btnC = $('q-c-btn');
+  if(btnC) btnC.addEventListener('click', async ()=>{
+    btnC.disabled = true;
+    const { error } = await sb.rpc('marketing_concluir', {
+      p_demanda: d.id, p_data: $('q-c-data').value || null, p_resultado: $('q-c-resultado').value,
+    });
+    btnC.disabled = false;
+    if(error){ mostrarToast(error.message); return; }
+    aposAcao('Ação concluída.');
+  });
+
+  // reabrir
+  const btnR = $('q-reabrir');
+  if(btnR) btnR.addEventListener('click', async ()=>{
+    const motivo = prompt('Motivo da reabertura:');
+    if(motivo === null) return;
+    const { error } = await sb.rpc('marketing_alterar_esteira', {
+      p_demanda: d.id, p_tipo: 'status', p_motivo: motivo,
+      p_prazo_inicio: d.prazo_inicio, p_prazo: d.prazo, p_prioridade: d.prioridade,
+      p_em_paralelo: d.em_paralelo, p_status: 'em_andamento',
+    });
+    if(error){ mostrarToast(error.message); return; }
+    aposAcao('Ação reaberta.');
+  });
+
+  // furar a fila
+  if($('q-ff-confirmar')){
+    const modo = () => document.querySelector('input[name="q-modo"]:checked').value;
+    const params = (simular) => ({
+      p_demanda: d.id, p_modo: modo(), p_dias: modo()==='empurrar' ? Number($('q-ff-dias').value) : null,
+      p_motivo: $('q-ff-motivo').value, p_prazo_inicio: $('q-ff-inicio').value || null,
+      p_prazo: $('q-ff-prazo').value || null, p_simular: simular,
+    });
+    const atualizarModo = ()=>{
+      $('q-ff-campo-dias').style.display = modo()==='empurrar' ? '' : 'none';
+      $('q-opcao-empurrar').classList.toggle('selecionada', modo()==='empurrar');
+      $('q-opcao-paralelo').classList.toggle('selecionada', modo()==='paralelo');
+      $('q-ff-previa').innerHTML = '';
+    };
+    document.querySelectorAll('input[name="q-modo"]').forEach(r=>r.addEventListener('change', atualizarModo));
+    atualizarModo();
+
+    const simular = async ()=>{
+      const { data, error } = await sb.rpc('marketing_furar_fila', params(true));
+      if(error){ mostrarToast(error.message); return null; }
+      const af = data.afetadas || [];
+      $('q-ff-previa').innerHTML = modo()==='paralelo'
+        ? `<div class="previa">Em paralelo: <b>nenhum prazo de outras ações será alterado</b>.</div>`
+        : `<div class="previa">${af.length ? `<b>${af.length} ação(ões)</b> terão o prazo empurrado em ${Number($('q-ff-dias').value)} dia(s):<ul>${af.map(a=>`
+            <li>${esc(a.nome_acao)} (${esc(a.loja)}) — conclusão ${fmtData(a.prazo_de)} → ${fmtData(a.prazo_para)}${a.status==='em_andamento' ? ' · em andamento: só a conclusão muda' : ''}</li>`).join('')}</ul>`
+            : 'Nenhuma outra ação será afetada.'}</div>`;
+      return af;
+    };
+    $('q-ff-simular').addEventListener('click', simular);
+    $('q-ff-confirmar').addEventListener('click', async ()=>{
+      if(!$('q-ff-motivo').value.trim()){ mostrarToast('Informe o motivo.'); return; }
+      const af = await simular();
+      if(af === null) return;
+      const txt = modo()==='paralelo'
+        ? 'Executar esta ação em paralelo, sem alterar os prazos das demais?'
+        : `Empurrar ${af.length} ação(ões) em ${Number($('q-ff-dias').value)} dia(s) e colocar esta ação na frente?`;
+      if(!confirm(txt)) return;
+      $('q-ff-confirmar').disabled = true;
+      const { error } = await sb.rpc('marketing_furar_fila', params(false));
+      $('q-ff-confirmar').disabled = false;
+      if(error){ mostrarToast(error.message); return; }
+      aposAcao(modo()==='paralelo' ? 'Ação em paralelo.' : 'Fila reorganizada.');
+    });
+  }
+}
+
+function fecharQuadro(){
+  document.getElementById('overlay-quadro').classList.remove('ativo');
+  quadroDemandaId = null;
+}
+document.getElementById('q-fechar').addEventListener('click', fecharQuadro);
+document.getElementById('overlay-quadro').addEventListener('click', (e)=>{
+  if(e.target.id === 'overlay-quadro') fecharQuadro();
+});
+
+// ---------- Frentes ----------
+function atualizarSelectsFrentes(){
+  popularSelectLojas(document.getElementById('d-loja'), podeVerTudo ? nomesFrentes() : minhasLojas, false);
+  popularSelectLojas(document.getElementById('filtro-central-loja'), nomesFrentes({apenasAtivas:false}), true);
+  popularSelectLojas(document.getElementById('filtro-conc-frente'), podeVerTudo ? nomesFrentes({apenasAtivas:false}) : minhasLojas, true);
+}
+function renderListaFrentes(){
+  const el = document.getElementById('f-lista');
+  el.innerHTML = frentes.map(f=>`
+    <div class="esteira-linha" style="grid-template-columns:1fr auto;">
+      <div><div class="esteira-nome">${esc(f.nome)}</div>
+        <div class="esteira-sub"><span>${f.tipo==='loja' ? 'Loja' : 'Outra frente'}</span><span>${f.ativo ? 'Ativa' : 'Inativa'}</span></div></div>
+      <button class="btn btn-ghost btn-sm" data-toggle="${esc(f.nome)}">${f.ativo ? 'Desativar' : 'Ativar'}</button>
+    </div>`).join('');
+  el.querySelectorAll('[data-toggle]').forEach(b=>b.addEventListener('click', async ()=>{
+    const f = frentes.find(x=>x.nome===b.dataset.toggle);
+    const { error } = await sb.from('marketing_frentes').update({ ativo: !f.ativo }).eq('nome', f.nome);
+    if(error){ mostrarToast('Erro: ' + error.message); return; }
+    await carregarFrentes(); renderListaFrentes(); atualizarSelectsFrentes();
+  }));
+}
+document.getElementById('btn-gerenciar-frentes').addEventListener('click', ()=>{
+  renderListaFrentes();
+  document.getElementById('overlay-frentes').classList.add('ativo');
+});
+document.getElementById('f-fechar').addEventListener('click', ()=>document.getElementById('overlay-frentes').classList.remove('ativo'));
+document.getElementById('overlay-frentes').addEventListener('click', (e)=>{
+  if(e.target.id === 'overlay-frentes') e.currentTarget.classList.remove('ativo');
+});
+document.getElementById('form-frente').addEventListener('submit', async (e)=>{
+  e.preventDefault();
+  const nome = document.getElementById('f-nome').value.trim();
+  if(!nome) return;
+  const { error } = await sb.from('marketing_frentes').insert({ nome, tipo: document.getElementById('f-tipo').value });
+  if(error){ mostrarToast(error.code === '23505' ? 'Essa frente já existe.' : 'Erro: ' + error.message); return; }
+  document.getElementById('f-nome').value = '';
+  await carregarFrentes(); renderListaFrentes(); atualizarSelectsFrentes();
+  mostrarToast('Frente cadastrada.');
+});
+
 function atualizarAbaAtual(){
   const abaAtiva = document.querySelector('.aba-btn.ativa')?.dataset.aba;
   if(abaAtiva === 'minhas') carregarMinhasDemandas();
+  if(abaAtiva === 'esteira') carregarEsteira();
   if(abaAtiva === 'central') carregarCentral();
+  if(abaAtiva === 'concluidas') carregarConcluidas();
   if(abaAtiva === 'painel') carregarPainel();
 }
 </script>
